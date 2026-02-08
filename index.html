@@ -17,8 +17,12 @@ body { background: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; 
 .intro-content { position: relative; z-index: 100000; width: 90%; }
 .enter-btn-fixed { padding: 18px 45px; border-radius: 50px; background: var(--neon); color: #000; border: none; font-weight: 900; font-size: 18px; cursor: pointer; box-shadow: 0 0 30px var(--neon); text-transform: uppercase; margin-top: 20px; }
 
+/* --- GUIDELINE LAYER --- */
+#guideLayer { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100002; background: rgba(0,0,0,0.95); backdrop-filter: blur(15px); justify-content: center; align-items: center; }
+.guide-box { width: 85%; max-width: 380px; padding: 25px; border-radius: 25px; background: #0a0a0a; border: 2px solid var(--gold); text-align: center; }
+
 /* --- MAIN APP UI --- */
-.main-wrapper { max-width: 500px; margin: 0 auto; padding-bottom: 50px; }
+.main-wrapper { max-width: 500px; margin: 0 auto; padding-bottom: 50px; display: none; }
 .mode-header { display: flex; justify-content: center; gap: 15px; padding: 15px 0; background: #000; border-radius: 15px; border-bottom: 1px solid #222; margin-bottom: 15px; }
 .btn-mode { padding: 8px 20px; border-radius: 30px; border: 1px solid #333; background: #111; color: #666; font-weight: 800; cursor: pointer; }
 .btn-mode.active { border-color: var(--neon); color: var(--neon); box-shadow: 0 0 10px var(--neon); }
@@ -42,25 +46,21 @@ body { background: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; 
 .drop-btn { width: 100%; padding: 12px; border-radius: 12px; margin: 8px 0; font-weight: 800; cursor: pointer; border: 1px solid #444; background: rgba(255,255,255,0.05); color: #fff; display: flex; justify-content: space-between; align-items: center; }
 .drop-content { display: none; border-radius: 15px; overflow: hidden; margin-bottom: 15px; border: 1px solid #333; background: #000; }
 
-/* CALCULATOR */
 .calc-container { width: 100%; height: 500px; overflow: auto; background: #fff; border-radius: 10px; }
 #calcFrame { width: 1200px; height: 1000px; border: none; transform: scale(0.4); transform-origin: 0 0; }
-
-/* TELEGRAM BUTTON */
 .btn-tg { background: var(--tg); color: #fff; padding: 12px; border-radius: 12px; font-weight: 900; margin: 10px 0; text-decoration: none; display: flex; justify-content: center; align-items: center; gap: 10px; box-shadow: 0 0 15px var(--tg); }
 
-/* --- HISTORY SCROLL FIX --- */
 .history-scroll { width: 100%; max-height: 250px; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; scrollbar-color: var(--neon) #000; }
 .history-scroll::-webkit-scrollbar { width: 4px; }
 .history-scroll::-webkit-scrollbar-thumb { background: var(--neon); border-radius: 10px; }
 
-/* --- OLD POPUP STYLE --- */
-.overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 100005; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
-.popup-old { width: 300px; padding: 30px 20px; border-radius: 20px; text-align: center; background: #000; border: 4px solid var(--neon); position: relative; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+/* --- PURANA WIN/LOSS POPUP STYLE --- */
+.overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100005; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
+.popup-old { width: 320px; padding: 30px 20px; border-radius: 25px; text-align: center; background: #000; border: 4px solid var(--neon); position: relative; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-.pop-title { font-size: 24px; font-weight: 900; color: var(--neon); text-transform: uppercase; margin-bottom: 10px; }
-.pop-msg { font-size: 18px; font-weight: bold; color: #fff; margin: 10px 0; }
-.pop-info { font-size: 14px; color: #aaa; margin: 5px 0; }
+.pop-title { font-size: 26px; font-weight: 900; color: var(--neon); text-transform: uppercase; margin-bottom: 10px; }
+.pop-msg { font-size: 20px; font-weight: bold; color: #fff; margin: 10px 0; }
+.pop-info { font-size: 15px; color: #aaa; margin: 5px 0; }
 
 table { width: 100%; border-collapse: collapse; font-size: 11px; }
 th, td { padding: 10px; border-bottom: 1px solid #222; text-align: center; }
@@ -70,17 +70,27 @@ th, td { padding: 10px; border-bottom: 1px solid #222; text-align: center; }
 </head>
 <body>
 
+<audio id="guideAudio" src="guide_audio.mp3" preload="auto"></audio>
+
 <div id="introLayer">
     <video id="bgVideo" autoplay muted loop playsinline><source src="intro.mp4" type="video/mp4"></video>
     <div id="audioBtn" onclick="toggleMute()">🔇</div>
     <div class="intro-content">
         <div class="zigzag-name" style="font-size: 40px; margin-bottom:10px;">𝗦𝗛𝗢𝗔𝗜𝗕 𝗠𝗢𝗗𝗭</div>
         <p style="color:#aaa; font-weight:bold; letter-spacing:2px;">V15 DUAL PRO SYSTEM</p>
-        <button class="enter-btn-fixed" onclick="enterApp()">INITIALIZE SYSTEM</button>
+        <button class="enter-btn-fixed" onclick="openGuideline()">INITIALIZE SYSTEM</button>
     </div>
 </div>
 
-<div id="mainApp" class="main-wrapper" style="display:none;">
+<div id="guideLayer">
+    <div class="guide-box">
+        <h2 style="color:var(--gold); margin-top:0;">⚠️ ZAROORI GUIDELINE</h2>
+        <p style="color:#fff; font-weight:bold; line-height:1.6; font-size:15px;">Is hack ko use karne ke liye sabse pehle iske kam se kam 10 signals ko lazmi check karein. Agar accuracy aur winning acchi aa rahi hai, to hi is hack ko use karein.</p>
+        <button onclick="enterApp()" style="background:var(--gold); border:none; padding:15px; border-radius:15px; font-weight:900; width:100%; color:#000; cursor:pointer; font-size:16px; margin-top:10px;">MAIN SAMAJH GAYA</button>
+    </div>
+</div>
+
+<div id="mainApp" class="main-wrapper">
     <div class="mode-header">
         <button id="m30" class="btn-mode" onclick="changeMode(30)">30 SEC</button>
         <button id="m60" class="btn-mode active" onclick="changeMode(60)">1 MIN</button>
@@ -88,45 +98,24 @@ th, td { padding: 10px; border-bottom: 1px solid #222; text-align: center; }
 
     <div class="glass-box">
         <div class="zigzag-name">𝗦𝗛𝗢𝗔𝗜𝗕 𝗠𝗢𝗗𝗭</div>
-
         <a href="https://t.me/+ESxMD_rcMGdlYTU8" class="btn-tg">📲 JOIN For free hack 💯</a>
-
         <select id="gameSelect" style="width:100%; padding:12px; background:#000; color:#fff; border:1px solid #444; border-radius:10px; margin-bottom:10px;">
             <option value="https://www.pakgames.bio/#/register?invitationCode=342344738">PAK GAMES (VIP)</option>
             <option value="https://www.basantclub.org/#/register?invitationCode=26562575">BASANT CLUB</option>
             <option value="https://www.92lotto.org/#/register?invitationCode=56418109825">92 JEETO</option>
         </select>
         <button class="drop-btn" style="border-color:var(--neon); color:var(--neon); justify-content:center;" onclick="toggleSec('gameSec'); loadGame();">🚀 OPEN GAME SERVER</button>
-
-        <div id="gameSec" class="drop-content">
-            <iframe id="gameIframe" src="" style="width:100%; height:500px; border:none;"></iframe>
-            <button class="drop-btn" style="border-color:var(--danger); color:var(--danger); justify-content:center; margin:0;" onclick="toggleSec('gameSec')">CLOSE GAME ×</button>
-        </div>
-
+        <div id="gameSec" class="drop-content"><iframe id="gameIframe" src="" style="width:100%; height:500px; border:none;"></iframe><button class="drop-btn" style="border-color:var(--danger); color:var(--danger); justify-content:center; margin:0;" onclick="toggleSec('gameSec')">CLOSE GAME ×</button></div>
         <div id="pID" style="color:#888; margin-top:10px;">PERIOD: SYNCING...</div>
-        
-        <div class="timer-container">
-            <svg class="timer-svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="none" stroke="#222" stroke-width="7"/><circle id="timerCircle" class="timer-circle-fg" cx="50" cy="50" r="45"/></svg>
-            <div class="timer-text" id="timer">--</div>
-        </div>
-
+        <div class="timer-container"><svg class="timer-svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="none" stroke="#222" stroke-width="7"/><circle id="timerCircle" class="timer-circle-fg" cx="50" cy="50" r="45"/></svg><div class="timer-text" id="timer">--</div></div>
         <div id="pRes">WAITING...</div>
         <div id="pOpps" class="rgb-box">ANALYZING SIGNALS...</div>
-
         <button class="drop-btn" style="border-color:var(--blue); color:var(--blue);" onclick="toggleSec('calcSec')"><span>📈 RECOVERY CALCULATOR (DESKTOP)</span> <span>▼</span></button>
         <div id="calcSec" class="drop-content"><div class="calc-container"><iframe id="calcFrame" src="https://skteam-plan2xplan.pages.dev/"></iframe></div></div>
-
         <button class="drop-btn" style="border-color:var(--gold); color:var(--gold);" onclick="toggleSec('histSec')"><span>📜 GAME HISTORY</span> <span>▼</span></button>
-        <div id="histSec" class="drop-content">
-            <div class="history-scroll">
-                <table><tbody id="gameHistory"></tbody></table>
-            </div>
-        </div>
-
+        <div id="histSec" class="drop-content"><div class="history-scroll"><table><tbody id="gameHistory"></tbody></table></div></div>
         <div style="color:var(--neon); font-size:12px; text-align:left; margin-top:15px; font-weight:900;">📊 HACKING LOGS</div>
-        <div class="history-scroll" style="max-height:200px;">
-            <table><thead><tr><th>PERIOD</th><th>HACK</th><th>RESULT</th><th>STATUS</th></tr></thead><tbody id="logs"></tbody></table>
-        </div>
+        <div class="history-scroll" style="max-height:200px;"><table><thead><tr><th>PERIOD</th><th>HACK</th><th>RESULT</th><th>STATUS</th></tr></thead><tbody id="logs"></tbody></table></div>
     </div>
 </div>
 
@@ -153,17 +142,30 @@ th, td { padding: 10px; border-bottom: 1px solid #222; text-align: center; }
 <script>
 let gameMode = 60; let lastIssue = ""; let prediction = ""; 
 const vid = document.getElementById('bgVideo');
+const gAudio = document.getElementById('guideAudio');
 
 function toggleMute() { vid.muted = !vid.muted; document.getElementById('audioBtn').innerText = vid.muted ? "🔇" : "🔊"; }
 function toggleSec(id) { let e = document.getElementById(id); e.style.display = (e.style.display === 'block') ? 'none' : 'block'; }
 function closePop(id) { document.getElementById(id).style.display = 'none'; }
 function loadGame() { let url = document.getElementById('gameSelect').value; if(url) document.getElementById('gameIframe').src = url; }
 
-function enterApp() {
-    vid.pause(); vid.muted = true;
+function openGuideline() {
     document.getElementById('introLayer').style.display = 'none';
+    document.getElementById('guideLayer').style.display = 'flex';
+    gAudio.play().catch(e => console.log("Audio Blocked"));
+}
+
+function enterApp() {
+    gAudio.pause(); gAudio.currentTime = 0;
+    vid.pause(); vid.muted = true;
+    document.getElementById('guideLayer').style.display = 'none';
     document.getElementById('mainApp').style.display = 'block';
     renderLogs(); runEngine();
+}
+
+function renderLogs() {
+    let logs = JSON.parse(localStorage.getItem('sh_logs_' + gameMode)) || [];
+    document.getElementById('logs').innerHTML = logs.join('');
 }
 
 function changeMode(m) {
@@ -171,11 +173,6 @@ function changeMode(m) {
     document.getElementById('m30').classList.toggle('active', m === 30);
     document.getElementById('m60').classList.toggle('active', m === 60);
     renderLogs();
-}
-
-function renderLogs() {
-    let logs = JSON.parse(localStorage.getItem('sh_logs_' + gameMode)) || [];
-    document.getElementById('logs').innerHTML = logs.join('');
 }
 
 async function runEngine() {
@@ -191,11 +188,10 @@ async function runEngine() {
             let api = gameMode === 30 ? "WinGo_30S" : "WinGo_1M";
             const res = await fetch(`https://draw.ar-lottery01.com/WinGo/${api}/GetHistoryIssuePage.json`);
             const data = await res.json();
-            const list = data.data.list;
-            const latest = list[0];
+            const latest = data.data.list[0];
 
             let hHtml = "";
-            list.slice(0, 10).forEach(i => { // Showing 10 for scroll
+            data.data.list.slice(0, 10).forEach(i => {
                 const n = parseInt(i.number); const s = n >= 5 ? "BIG" : "SMALL";
                 hHtml += `<tr><td>${i.issueNumber}</td><td style="color:var(--gold)">${n}</td><td style="color:${s==='BIG'?'#00ff41':'#ff003c'}">${s}</td></tr>`;
             });
@@ -208,14 +204,15 @@ async function runEngine() {
                     const isWin = (prediction === size);
                     let row = `<tr><td>${latest.issueNumber.slice(-4)}</td><td style="color:var(--blue)">${prediction}</td><td>${num}(${size})</td><td><span class="${isWin?'win-tag':'loss-tag'}">${isWin?'WIN':'LOSS'}</span></td></tr>`;
                     let logs = JSON.parse(localStorage.getItem('sh_logs_' + gameMode)) || [];
-                    logs.unshift(row); if(logs.length > 20) logs.pop(); // Keep logs scrollable too
+                    logs.unshift(row); if(logs.length > 20) logs.pop();
                     localStorage.setItem('sh_logs_' + gameMode, JSON.stringify(logs));
                     renderLogs();
 
                     if(isWin) {
                         document.getElementById('winPeriod').innerText = "Period: " + latest.issueNumber;
                         document.getElementById('winPop').style.display='flex';
-                        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+                        // PURI SCREEN PAR PARTY (CONFETTI)
+                        confetti({ particleCount: 200, spread: 100, origin: { y: 0.5 }, zIndex: 100006 });
                     } else {
                         document.getElementById('lossPeriod').innerText = "Period: " + latest.issueNumber;
                         document.getElementById('lossPop').style.display='flex';
